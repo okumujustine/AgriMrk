@@ -16,4 +16,4 @@ app.register_blueprint (consultation, url_prefix='/consultation')
 app.register_blueprint (product, url_prefix='/product') 
 
 # create databases
-db.create_all()
+# db.create_all()
