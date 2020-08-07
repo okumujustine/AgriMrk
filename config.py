@@ -1,12 +1,12 @@
 
 import os
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))  
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 FLASK_ENV = 'development'
 # FLASK_ENV = 'production'
 
 
-if FLASK_ENV=='development':
+if FLASK_ENV == 'development':
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/agrimrk'
 else:
@@ -18,7 +18,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 THREADS_PER_PAGE = 2
 
 # Cross-site Request Forgery (CSRF)
-CSRF_ENABLED     = True
+CSRF_ENABLED = True
 
 CSRF_SESSION_KEY = "secret"
 
