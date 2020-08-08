@@ -7,7 +7,7 @@ import secrets
 from app import app, db, photos
 from app.helper_functions import (token_required, admin_required, agronomist_required, error_return, success_return)
 from app.helper_variables import (ALLOWED_EXTENSIONS)
-from app.products.models import Category
+from app.products.models import Category, Product
 
 # initial product blueprint
 product = Blueprint('product', __name__)
@@ -40,7 +40,14 @@ def add_category():
 def add_product():
     # get form data
     product_form = request.form
-    
+    title = product_form['title']
+    description = product_form['description']
+    vendor = product_form['vendor']
+    price = product_form['price']
+    discount = product_form['discount']
+    category = product_form['category']
+    stock = product_form['stock']
+
     # handing files upload
     check_duplicate_imagename = []
     file_one = request.files['imageOne']
@@ -63,5 +70,19 @@ def add_product():
     # end of file upload
 
     # save other informations.
+    new_product = Product(
+        title = title,
+        description = description,
+        vendor = vendor,
+        price = price,
+        discount = discount,
+        category_id = category,
+        stock = stock,
+        image_one = product_image_one,
+        image_two = product_image_two,
+        image_three = product_image_three
+    )
+    db.session.add(new_product)
+    db.session.commit()
     
-    return "new product uploaded"
+    return jsonify(success_return(201, {'data': title}))
