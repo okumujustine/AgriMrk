@@ -6,7 +6,7 @@ class Product(Base):
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     vendor = db.Column(db.String(100), nullable=False)
-    price = db.Column(db.Numeric(10,2), nullable=False)
+    price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False)
     discount = db.Column(db.Integer, default=0)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'),

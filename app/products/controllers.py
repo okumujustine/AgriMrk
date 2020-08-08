@@ -8,6 +8,7 @@ from app import app, db, photos
 from app.helper_functions import (token_required, admin_required, agronomist_required, error_return, success_return)
 from app.helper_variables import (ALLOWED_EXTENSIONS)
 from app.products.models import Category, Product
+from app.products.schema import products_schema
 
 # initial product blueprint
 product = Blueprint('product', __name__)
@@ -86,3 +87,9 @@ def add_product():
     db.session.commit()
     
     return jsonify(success_return(201, {'data': title}))
+
+
+@product.route('/get', methods=['GET'])
+def get_all_product():
+    products = Product.query.all()
+    return products_schema.jsonify(products)
