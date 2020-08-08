@@ -6,7 +6,7 @@ import jwt
 
 
 from app import db, app
-from app.authentication.models import User
+from app.authentication.models import User, Role
 from app.authentication.schema import user_schema
 from app.helper_functions import (
     error_return,
@@ -40,6 +40,8 @@ def signup():
     hashed_password = generate_password_hash(password)
 
     new_user_data = User(country, region, district, phone, name, email, hashed_password, status)
+    new_user_role = Role.query.filter_by(role='customer').first()
+    new_user_data.roles.append(new_user_role)
     db.session.add(new_user_data)
     db.session.commit()
 
@@ -57,6 +59,10 @@ def login():
     password = user['password']
 
     existing_user = User.query.filter_by(phone=phone).first()
+    existing_user_roles = []
+
+    for roles in existing_user.roles:
+        existing_user_roles.append(roles.role)
 
     if not existing_user:
         return jsonify(error_return(404, 'user does not exists'))
@@ -65,13 +71,15 @@ def login():
         return jsonify(error_return(400, 'incorrect contact or password'))
 
     logged_in_user = {
+        'id':existing_user.id,
         'country':existing_user.country,
         'region':existing_user.region,
         'district':existing_user.district,
         'phone':existing_user.phone,
         'name':existing_user.name,
         'email':existing_user.email,
-        'status':existing_user.status
+        'status':existing_user.status,
+        'roles': existing_user_roles
     }     
 
     token = jwt.encode({
@@ -82,4 +90,5 @@ def login():
     )
 
     return jsonify(success_return(200, {'token':token.decode('utf-8')} ))
+    # return user_schema.jsonify(existing_user)
 

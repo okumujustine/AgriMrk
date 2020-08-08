@@ -1,5 +1,7 @@
 
-from app import db
+from app import db, app
+from flask_security import Security, SQLAlchemyUserDatastore, \
+    UserMixin, RoleMixin, login_required
 
 
 class Base(db.Model):
@@ -11,6 +13,11 @@ class Base(db.Model):
     date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
                               onupdate=db.func.current_timestamp())
 
+user_roles = db.Table(
+    'user_roles',
+    db.Column('user_id', db.BigInteger, db.ForeignKey('user.id')),
+    db.Column('role_id', db.BigInteger, db.ForeignKey('role.id'))
+)
 
 class User(Base):
 
@@ -24,6 +31,8 @@ class User(Base):
     email = db.Column(db.String(128),  nullable=True, unique=True)
     password = db.Column(db.String(192),  nullable=False)
     status = db.Column(db.SmallInteger, nullable=False)
+    roles = db.relationship('Role', secondary=user_roles,
+                            backref=db.backref('users', lazy='dynamic'))
 
     def __init__(self, country, region, district, phone, name, email, password, status):
 
@@ -43,20 +52,9 @@ class User(Base):
 class Role(Base):
 
     __tablename__ = 'role'
-
+    
     role = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(255))
 
     def __init__(self, role):
         self.role = role
-
-
-# class UserRole(Base):
-    
-#     __tablename__ = 'user_role'
-
-#     user_id = db.Column(ForeignKey('user.id'))
-#     role_id = db.Column(ForeignKey('role.id'))
-
-#     def __init__(self, user_id, role_id):
-#         self.user_id = user_id
-#         self.role_id = role_id

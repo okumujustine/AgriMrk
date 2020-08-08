@@ -39,6 +39,29 @@ def token_required(f):
 
     return decorated
 
+def admin_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'x-access-token' in request.headers:
+            token = request.headers['x-access-token']
+
+        if not token:
+            return jsonify(error_return(401, "token is missing"))
+
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = data['user']
+        except:
+            return jsonify(error_return(401, "token is invalid"))
+
+        if current_user['district'] != 'kam':
+            return jsonify(error_return(401, "only admin user access"))
+
+        return f(current_user, *args, **kwargs)
+
+    return decorated
+
 def user_exist_by_email(email):
     existing_user_email = User.query.filter_by(email=email).first()
     if existing_user_email:
