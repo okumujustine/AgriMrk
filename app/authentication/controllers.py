@@ -30,6 +30,7 @@ def signup():
     district = new_user['district']
     password = new_user['password']
     status = new_user['status']
+    role = new_user['role']
 
     if user_exist_by_contact(phone):
         return jsonify(error_return(301, 'user with phone already exists'))
@@ -40,7 +41,10 @@ def signup():
     hashed_password = generate_password_hash(password)
 
     new_user_data = User(country, region, district, phone, name, email, hashed_password, status)
-    new_user_role = Role.query.filter_by(role='customer').first()
+    new_user_role = Role.query.filter_by(role=role).first()
+    if not new_user_role:
+        return jsonify(error_return(400, 'user role does not exist'))
+
     new_user_data.roles.append(new_user_role)
     db.session.add(new_user_data)
     db.session.commit()
