@@ -1,17 +1,6 @@
 
 from app import db, app
-from flask_security import Security, SQLAlchemyUserDatastore, \
-    UserMixin, RoleMixin, login_required
-
-
-class Base(db.Model):
-
-    __abstract__ = True
-
-    id = db.Column(db.BigInteger, primary_key=True)
-    date_created = db.Column(db.DateTime,  default=db.func.current_timestamp())
-    date_modified = db.Column(db.DateTime,  default=db.func.current_timestamp(),
-                              onupdate=db.func.current_timestamp())
+from app.models import Base
 
 user_roles = db.Table(
     'user_roles',

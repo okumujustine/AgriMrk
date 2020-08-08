@@ -2,12 +2,18 @@
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_uploads import IMAGES, UploadSet, configure_uploads, patch_request_class
 
 app = Flask(__name__)
 
 app.config.from_object('config')
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+
+# photo upload settings
+photos = UploadSet('photos', IMAGES)
+configure_uploads(app, photos)
+patch_request_class(app)
 
 from app.authentication.controllers import authentication
 from app.consultation.controllers import consultation

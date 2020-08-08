@@ -1,5 +1,7 @@
 
 import os
+from flask_uploads import IMAGES
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 FLASK_ENV = 'development'
@@ -24,3 +26,9 @@ CSRF_SESSION_KEY = "secret"
 
 # Secret key for signing cookies
 SECRET_KEY = "agriculturefordevelopement"
+
+
+# UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static/image/uploads')
+# MAX_CONTENT_LENGTH = 16 * 1024 * 1024
+
+UPLOADED_PHOTOS_DEST = os.path.join(BASE_DIR, 'static/image/uploads')

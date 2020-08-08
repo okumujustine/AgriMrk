@@ -82,7 +82,7 @@ def agronomist_required(f):
 
         if any(c_roles in current_user['roles'] for c_roles in (user_admin, user_agronimist)):
             return f(current_user, *args, **kwargs)
-        print(current_user['roles'])
+       
         return jsonify(error_return(401, "only admin and agronimoist user access"))
 
     return decorated
