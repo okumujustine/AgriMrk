@@ -7,6 +7,7 @@ appenv
 env/
 env*
 dist/
+static/*
 build/
 *.egg
 *.egg-info/
