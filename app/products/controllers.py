@@ -91,5 +91,10 @@ def add_product():
 
 @product.route('/get', methods=['GET'])
 def get_all_product():
-    products = Product.query.all()
-    return products_schema.jsonify(products)
+    page = request.args.get('page', 1, type=int)
+    try:
+        products = Product.query.order_by(Product.date_created.desc()).paginate(page, 2, False)
+    except:
+        return jsonify(error_return(500, 'Server error during loading of data'))
+        
+    return products_schema.jsonify(products.items)
