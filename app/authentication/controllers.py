@@ -62,6 +62,9 @@ def login():
     phone = user['phone']
     password = user['password']
 
+    if not phone or not password:
+        return jsonify(error_return(400, 'all required fields must be provided.'))
+
     existing_user = User.query.filter_by(phone=phone).first()
     existing_user_roles = []
 
@@ -93,6 +96,6 @@ def login():
         algorithm='HS256'
     )
 
-    return jsonify(success_return(200, {'token':token.decode('utf-8')} ))
+    return jsonify(success_return(200, {'token':token.decode('utf-8'), 'user':logged_in_user} ))
     # return user_schema.jsonify(existing_user)
 
