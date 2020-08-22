@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, Response
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import datetime
 import jwt
+import json
 
 
 from app import db, app
@@ -14,6 +15,7 @@ from app.helper_functions import (
     user_exist_by_email,
     user_exist_by_contact
 )
+from app.helper_functions import token_required
 
 # initialization blueprint
 authentication = Blueprint('authentication', __name__)
@@ -61,21 +63,24 @@ def login():
     user = request.json
     phone = user['phone']
     password = user['password']
+  
+    if len(phone.strip())==0 or len(password.strip())==0:
+        return jsonify(error_return(400, 'all required fields must be provided.')), 400
 
-    if not phone or not password:
-        return jsonify(error_return(400, 'all required fields must be provided.'))
+    if not phone.isdigit():
+        return jsonify(error_return(400, 'invalid phone number.')), 400
 
     existing_user = User.query.filter_by(phone=phone).first()
     existing_user_roles = []
 
-    for roles in existing_user.roles:
-        existing_user_roles.append(roles.role)
-
     if not existing_user:
-        return jsonify(error_return(404, 'user does not exists'))
+        return jsonify(error_return(404, 'user does not exists')), 404
 
     if not check_password_hash(existing_user.password, password):
-        return jsonify(error_return(400, 'incorrect contact or password'))
+        return jsonify(error_return(400, 'incorrect contact or password')), 404
+
+    for roles in existing_user.roles:
+        existing_user_roles.append(roles.role)
 
     logged_in_user = {
         'id':existing_user.id,
@@ -91,11 +96,18 @@ def login():
 
     token = jwt.encode({
         'user':logged_in_user,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=4)},
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=2)},
         app.config['SECRET_KEY'],
         algorithm='HS256'
     )
 
     return jsonify(success_return(200, {'token':token.decode('utf-8'), 'user':logged_in_user} ))
     # return user_schema.jsonify(existing_user)
+
+
+
+@authentication.route('/user', methods =['GET'])
+@token_required
+def current_logged_in_user(current_user):
+    return jsonify({'current_user':current_user})
 
