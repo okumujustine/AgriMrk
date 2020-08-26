@@ -92,7 +92,7 @@ def login():
         'roles': existing_user_roles
     }     
 
-    expires = datetime.timedelta(seconds=10)
+    expires = datetime.timedelta(hours=3)
     token = create_access_token(identity=logged_in_user, expires_delta=expires)
     refresh_token = create_refresh_token(identity=logged_in_user)
 
@@ -118,7 +118,7 @@ def check_if_token_expire():
 @jwt_refresh_token_required
 def refresh():
     identity = get_jwt_identity()
-    expires = datetime.timedelta(seconds=10)
+    expires = datetime.timedelta(hours=3)
     token = create_access_token(identity=identity, expires_delta=expires)
     return jsonify({"token": token})
 
