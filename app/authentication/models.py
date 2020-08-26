@@ -47,3 +47,11 @@ class Role(Base):
 
     def __init__(self, role):
         self.role = role
+
+
+
+# functions
+def getUser(uid):
+    users = User.query.all()
+    user = list(filter(lambda x: x.id == uid, users))[0]
+    return {"id": user.id, "name": user.name, "email": user.email}

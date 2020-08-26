@@ -2,6 +2,7 @@ from flask import request, jsonify
 from functools import wraps
 from app import app
 import jwt
+from flask_jwt_extended import jwt_required
 
 from app.authentication.models import User
 from app.helper_variables import (user_admin, user_agronimist, user_customer)
@@ -28,9 +29,10 @@ def token_required(f):
             token = request.headers['x-access-token']
 
         if not token:
-            return jsonify(error_return(401, "token is missing")), 401
-
+            print('no token')
+            return jsonify(error_return(400, "token is missing")), 400
         try:
+            print(token)
             data = jwt.decode(token, app.config['SECRET_KEY'])
             current_user = data['user']
         except:

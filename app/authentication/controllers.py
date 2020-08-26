@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, Response
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity,create_refresh_token, jwt_refresh_token_required
 from functools import wraps
 import datetime
 import jwt
@@ -35,17 +36,17 @@ def signup():
     role = new_user['role']
 
     if user_exist_by_contact(phone):
-        return jsonify(error_return(400, 'user with phone already exists'))
+        return jsonify(error_return(400, 'user with phone already exists')), 400
 
     if user_exist_by_email(email):
-        return jsonify(error_return(400, 'user with email address already exists'))
-
+        return jsonify(error_return(400, 'user with email address already exists')), 400
+    
     hashed_password = generate_password_hash(password)
 
     new_user_data = User(country, region, district, phone, name, email, hashed_password, status)
     new_user_role = Role.query.filter_by(role=role).first()
     if not new_user_role:
-        return jsonify(error_return(404, 'user role does not exist'))
+        return jsonify(error_return(404, 'user role does not exist')), 404
 
     new_user_data.roles.append(new_user_role)
     db.session.add(new_user_data)
@@ -54,7 +55,7 @@ def signup():
     return jsonify(success_return(201, {
         'name':name,
         'phone':phone
-    }))
+    })), 201
 
 
 
@@ -64,11 +65,8 @@ def login():
     phone = user['phone']
     password = user['password']
   
-    if len(phone.strip())==0 or len(password.strip())==0:
+    if not phone or len(password.strip())==0:
         return jsonify(error_return(400, 'all required fields must be provided.')), 400
-
-    if not phone.isdigit():
-        return jsonify(error_return(400, 'invalid phone number.')), 400
 
     existing_user = User.query.filter_by(phone=phone).first()
     existing_user_roles = []
@@ -94,20 +92,33 @@ def login():
         'roles': existing_user_roles
     }     
 
-    token = jwt.encode({
-        'user':logged_in_user,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(weeks=2)},
-        app.config['SECRET_KEY'],
-        algorithm='HS256'
-    )
+    expires = datetime.timedelta(seconds=10)
+    token = create_access_token(identity=logged_in_user, expires_delta=expires)
+    refresh_token = create_refresh_token(identity=logged_in_user)
 
-    return jsonify(success_return(200, {'token':token.decode('utf-8'), 'user':logged_in_user} ))
-    # return user_schema.jsonify(existing_user)
-
+    return jsonify(success_return(200, {'token':token, "refreshToken": refresh_token, 'user':logged_in_user} )), 200
 
 
 @authentication.route('/user', methods =['GET'])
-@token_required
-def current_logged_in_user(current_user):
-    return jsonify({'current_user':current_user})
+@jwt_required
+def current_logged_in_user():
+    current_user = get_jwt_identity()
+    return jsonify(current_user), 200
+
+
+@authentication.route("/checkiftokenexpire", methods=["POST"])
+@jwt_required
+def check_if_token_expire():
+    current_user = get_jwt_identity()
+    print(current_user)
+    return jsonify({"success": True})
+
+
+@authentication.route("/refreshtoken", methods=["POST"])
+@jwt_refresh_token_required
+def refresh():
+    identity = get_jwt_identity()
+    expires = datetime.timedelta(seconds=10)
+    token = create_access_token(identity=identity, expires_delta=expires)
+    return jsonify({"token": token})
 

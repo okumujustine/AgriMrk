@@ -56,14 +56,14 @@ def add_product():
     file_three = request.files['imageThree']
    
     if not file_one.filename or not file_two.filename or not file_three.filename:
-        return jsonify(error_return(400, 'Proved all the three(3) images'))
+        return jsonify(error_return(400, 'Proved all the three(3) images')), 400
 
     if not allowed_file(file_one.filename) or not allowed_file(file_two.filename) or not allowed_file(file_three.filename):
-        return jsonify(error_return(400, 'Make sure only images are selected among the files'))
+        return jsonify(error_return(400, 'Make sure only images are selected among the files')), 400
 
     check_duplicate_imagename.extend([file_one.filename, file_two.filename, file_three.filename])
     if len(check_duplicate_imagename) != len(set(check_duplicate_imagename)):
-        return jsonify(error_return(400, 'Upload different images or images with different file names'))
+        return jsonify(error_return(400, 'Upload different images or images with different file names')), 4000
 
     product_image_one = photos.save(file_one, name =  secrets.token_hex(10) + '.')
     product_image_two = photos.save(file_two, name =  secrets.token_hex(10) + '.')
@@ -71,20 +71,23 @@ def add_product():
     # end of file upload
 
     # save other informations.
-    new_product = Product(
-        title = title,
-        description = description,
-        vendor = vendor,
-        price = price,
-        discount = discount,
-        category_id = category,
-        stock = stock,
-        image_one = product_image_one,
-        image_two = product_image_two,
-        image_three = product_image_three
-    )
-    db.session.add(new_product)
-    db.session.commit()
+    try:
+        new_product = Product(
+            title = title,
+            description = description,
+            vendor = vendor,
+            price = price,
+            discount = discount,
+            category_id = category,
+            stock = stock,
+            image_one = product_image_one,
+            image_two = product_image_two,
+            image_three = product_image_three
+        )
+        db.session.add(new_product)
+        db.session.commit()
+    except:
+        return jsonify(error_return(500, 'server failure')), 500
     
     return jsonify(success_return(201, {'data': title}))
 

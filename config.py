@@ -27,6 +27,7 @@ CSRF_SESSION_KEY = "secret"
 # Secret key for signing cookies
 SECRET_KEY = "agriculturefordevelopement"
 
+JWT_SECRET_KEY = "myawesomesecretisnevergonnagiveyouup"
 
 # UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static/image/uploads')
 # MAX_CONTENT_LENGTH = 16 * 1024 * 1024
