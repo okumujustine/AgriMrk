@@ -1,5 +1,6 @@
 
 from flask import Blueprint, request, jsonify, Response
+from rave_python import Rave, RaveExceptions, Misc
 import secrets
 from app import db
 
@@ -43,3 +44,41 @@ def add_orders(current_user):
         return jsonify(success_return(200,{"success":"Order created", "user":current_user})), 200
     else:
         return jsonify({"failed":"invalid request"})
+
+
+@orders.route('/charge', methods=['POST', 'GET'])
+def charge_orders():
+    rave = Rave("FLWPUBK_TEST-1c33f1ea951399fbd663cb875dadd1be-X", "FLWSECK_TEST-ceb195cb2306b9b911c426f3811edce7-X", usingEnv = False)
+
+    # mobile payload
+    payload = {
+    "redirect_url": "https://rave-webhook.herokuapp.com/receivepayment",
+    "IP":"",
+      "PBFPubKey": "FLWPUBK_TEST-1c33f1ea951399fbd663cb875dadd1be-X",
+  "currency": "UGX",
+  "payment_type": "mobilemoneyuganda",
+  "country": "UG",
+  "amount": "500",
+  "email": "okumujustine01@gmail.com",
+  "phonenumber": "256781459239",
+  "network": "UGX",
+  "firstname": "Okumu",
+  "lastname": "Justine",
+  "orderRef": "MC_03",
+  "device_fingerprint": "69e6b7f0b72037aa8428b70fbe03986c"
+    }
+
+    try:
+        res = rave.UGMobile.charge(payload)
+        print(res)
+        # res = rave.UGMobile.verify(res["ts"])
+        # print(res)
+
+    except RaveExceptions.TransactionChargeError as e:
+        print(e.err)
+        print(e.err["flwRef"])
+
+    except RaveExceptions.TransactionVerificationError as e:
+        print(e.err["errMsg"])
+        print(e.err["txRef"])
+    return {"charge":"charge"}

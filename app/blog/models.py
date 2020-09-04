@@ -42,3 +42,33 @@ def delBlog(blog_id):
     except Exception as e:
         print(e)
         return False
+
+class Comments(Base):
+    uid = db.Column(db.BigInteger, db.ForeignKey("user.id"))
+    user = db.relationship('User', foreign_keys=uid)
+    bid = db.Column(db.BigInteger, db.ForeignKey("blog.id"))
+    blog = db.relationship('Blog', foreign_keys=bid)
+    comment = db.Column(db.Text)
+
+
+def getComments(blog_id):
+    comments = Comments.query.filter_by(bid=blog_id)
+    return [{"id": i.id, "comment": i.comment, "user": getUser(i.uid)} for i in comments]
+
+
+def addComment(comment, bid, uid):
+    if (uid and comment and bid):
+        try:
+            user = list(filter(lambda i: i.id == int(uid), User.query.all()))[0]
+            
+            blog = list(filter(lambda i: i.id == int(bid), Blog.query.all()))[0]
+
+            final_comment = Comments(comment=comment, blog=blog, user=user)
+            db.session.add(final_comment)
+            db.session.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+    else:
+        return False
