@@ -8,4 +8,4 @@
 you will be required to setup your database url <b>config.py</b> </br>
 install requirements/packages with <b>pip install -r requirements.txt</b>
 
-<h6>Happy coding</h6>
+<h6>Change the world</h6>
