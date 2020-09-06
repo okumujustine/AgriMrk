@@ -5,7 +5,7 @@ from flask_marshmallow import Marshmallow
 from flask_uploads import IMAGES, UploadSet, configure_uploads, patch_request_class
 from flask_jwt_extended import JWTManager
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../static')
 
 app.config.from_object('config')
 db = SQLAlchemy(app)
