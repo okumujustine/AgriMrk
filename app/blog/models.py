@@ -11,9 +11,9 @@ class Blog(Base):
 
 
 
-def getBlogs():
-    blogs = Blog.query.all()
-    return [{"id": i.id, "title": i.title, "content": i.content, "user": getUser(i.uid)} for i in blogs]
+def getBlogs(page):
+    blogs = Blog.query.order_by(Blog.date_created.asc()).paginate(page, 20, False)
+    return [{"id": i.id, "title": i.title, "content": i.content, "user": getUser(i.uid)} for i in blogs.items]
 
 def getUserBlogs(uid):
     blogs = Blog.query.all()

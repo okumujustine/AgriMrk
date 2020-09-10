@@ -7,7 +7,8 @@ blog = Blueprint('blog', __name__)
 
 @blog.route('/')
 def index():
-    return jsonify(getBlogs()), 200
+    page = request.args.get('page', 1, type=int)
+    return jsonify(getBlogs(page)), 200
 
 
 @blog.route("/add", methods=["POST", "GET"])
