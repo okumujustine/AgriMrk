@@ -27,9 +27,12 @@ CSRF_SESSION_KEY = "secret"
 # Secret key for signing cookies
 SECRET_KEY = "agriculturefordevelopement"
 
-JWT_SECRET_KEY = "myawesomesecretisnevergonnagiveyouup"
+# JWT_SECRET_KEY = "myawesomesecretisnevergonnagiveyouup"
+JWT_SECRET_KEY = "motinnovativeagrikaltur1s55tistartedat14233567agets"
 
 # UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static/image/uploads')
 # MAX_CONTENT_LENGTH = 16 * 1024 * 1024
-
 UPLOADED_PHOTOS_DEST = os.path.join(BASE_DIR, 'static/image/uploads')
+
+JWT_BLACKLIST_ENABLED = True
+JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]

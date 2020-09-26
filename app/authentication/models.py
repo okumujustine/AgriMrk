@@ -1,6 +1,9 @@
 
 from app import db, app
 from app.models import Base
+from flask_jwt_extended import JWTManager
+
+jwt = JWTManager(app)
 
 user_roles = db.Table(
     'user_roles',
@@ -55,3 +58,25 @@ def getUser(uid):
     users = User.query.all()
     user = list(filter(lambda x: x.id == uid, users))[0]
     return {"id": user.id, "name": user.name, "email": user.email}
+
+
+
+class InvalidToken(Base):
+    __tablename__ = "invalid_tokens"
+    id = db.Column(db.Integer, primary_key=True)
+    jti = db.Column(db.String)
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def is_invalid(cls, jti):
+        q = cls.query.filter_by(jti=jti).first()
+        return bool(q)
+
+
+@jwt.token_in_blacklist_loader
+def check_if_blacklisted_token(decrypted):
+    jti = decrypted["jti"]
+    return InvalidToken.is_invalid(jti)

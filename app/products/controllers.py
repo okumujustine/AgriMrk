@@ -6,7 +6,7 @@ import secrets
 from app import app, db, photos
 from app.helper_functions import (token_required, admin_required, agronomist_required, error_return, success_return)
 from app.helper_variables import (ALLOWED_EXTENSIONS)
-from app.products.models import Category, Product
+from app.products.models import Category, Product, getProducts, getHireProducts, getProductsFiltered
 from app.products.schema import products_schema
 
 # initial product blueprint
@@ -47,6 +47,7 @@ def add_product():
     discount = product_form['discount']
     category = product_form['category']
     stock = product_form['stock']
+    sale_type = product_form['saleType']
 
     # handing files upload
     check_duplicate_imagename = []
@@ -81,7 +82,8 @@ def add_product():
             stock = stock,
             image_one = product_image_one,
             image_two = product_image_two,
-            image_three = product_image_three
+            image_three = product_image_three,
+            sale_type = sale_type
         )
         db.session.add(new_product)
         db.session.commit()
@@ -91,12 +93,25 @@ def add_product():
     return jsonify(success_return(201, {'data': title}))
 
 
-@product.route('/get', methods=['GET'])
-def get_all_product():
-    page = request.args.get('page', 1, type=int)
+@product.route('/hire/get', methods=['GET'])
+def get_all_hire_product():
     try:
-        products = Product.query.order_by(Product.date_created.desc()).paginate(page, 2, False)
-    except:
-        return jsonify(error_return(500, 'Server error during loading of data'))
+        page = request.args.get('page', 1, type=int)
+        return jsonify(getHireProducts(page)), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Server error"}), 5000
+
+
+@product.route('/get', methods=['GET', 'POST'])
+def get_all_product():
+    try:
+        page = request.args.get('page', 1, type=int)
+        if request.json is not None and bool(request.json["filterObject"]):
+            filter_object = request.json["filterObject"]
+            return jsonify(getProductsFiltered(page, filter_object)), 200
         
-    return products_schema.jsonify(products.items)
+        return jsonify(getProducts(page)), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Server error"}), 5000

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify, Response
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity,create_refresh_token, jwt_refresh_token_required
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity,create_refresh_token, jwt_refresh_token_required, get_raw_jwt
 from functools import wraps
 import datetime
 import jwt
@@ -8,7 +8,7 @@ import json
 
 
 from app import db, app
-from app.authentication.models import User, Role
+from app.authentication.models import User, Role, InvalidToken
 from app.authentication.schema import user_schema
 from app.helper_functions import (
     error_return,
@@ -91,10 +91,10 @@ def login():
         'status':existing_user.status,
         'roles': existing_user_roles
     }     
-
-    expires = datetime.timedelta(hours=3)
-    token = create_access_token(identity=logged_in_user, expires_delta=expires)
-    refresh_token = create_refresh_token(identity=logged_in_user)
+    token_expires = datetime.timedelta (minutes=30)
+    refresh_token_expires = datetime.timedelta (days=185)
+    token = create_access_token(identity=logged_in_user, expires_delta=token_expires)
+    refresh_token = create_refresh_token(identity=logged_in_user, expires_delta=refresh_token_expires)
 
     return jsonify(success_return(200, {'token':token, "refreshToken": refresh_token, 'user':logged_in_user} )), 200
 
@@ -118,7 +118,39 @@ def check_if_token_expire():
 @jwt_refresh_token_required
 def refresh():
     identity = get_jwt_identity()
-    expires = datetime.timedelta(hours=3)
-    token = create_access_token(identity=identity, expires_delta=expires)
-    return jsonify({"token": token})
+    token_expires = datetime.timedelta (minutes=30)
+    refresh_token_expires = datetime.timedelta (days=185)
+    token = create_access_token(identity=identity, expires_delta=token_expires)
+    refresh_token = create_refresh_token(identity=identity, expires_delta=refresh_token_expires)
+    return jsonify({"token": token, "refreshToken": refresh_token})
 
+
+
+
+
+@authentication.route("/logout/access", methods=["POST"])
+@jwt_required
+def access_logout():
+    jti = get_raw_jwt()["jti"]
+    try:
+        invalid_token = InvalidToken(jti=jti)
+        invalid_token.save()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return {"error": e}
+
+
+@authentication.route("/logout/refresh", methods=["POST"])
+# @jwt_required
+@jwt_refresh_token_required
+def refresh_logout():
+    jti = get_raw_jwt()["jti"]
+    print(jti)
+    try:
+        invalid_token = InvalidToken(jti=jti)
+        invalid_token.save()
+        return jsonify({"success": True})
+    except Exception as e:
+        print(e)
+        return {"error": e}

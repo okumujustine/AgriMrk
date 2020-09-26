@@ -1,5 +1,6 @@
 from app import db, ma
 from app.models import Base
+from sqlalchemy import and_
 
 
 class Product(Base):
@@ -9,6 +10,7 @@ class Product(Base):
     price = db.Column(db.Float, nullable=False)
     stock = db.Column(db.Integer, nullable=False)
     discount = db.Column(db.Integer, default=0)
+    sale_type = db.Column(db.String(20))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'),
         nullable=False)
     category = db.relationship('Category',
@@ -26,3 +28,29 @@ class Category(Base):
 
     def __repr__(self):
         return '<Category %r>' % self.name
+
+
+
+def getProductsFiltered(page_number, filter_object):
+    print(filter_object)
+    products = Product.query.filter(and_(Product.sale_type == "sale", Product.title.like("%" + filter_object["title"] + "%"))).order_by(Product.date_created.desc()).paginate(page_number, 12, False)
+    return {"products":[{"id": i.id, "description":i.description, "title":i.title,
+    "vendor":i.vendor, "price":i.price,"stock":i.stock, 
+    "sale_type":i.sale_type, "image_one":i.image_one,"category.name":i.category.name, 
+    "image_two":i.image_two, "image_three":i.image_three} for i in products.items], "current_page":products.page , "per_page":products.per_page ,"total":products.total}
+
+
+def getProducts(page_number):
+    products = Product.query.filter_by(sale_type="sale").order_by(Product.date_created.desc()).paginate(page_number, 12, False)
+    return {"products":[{"id": i.id, "description":i.description, "title":i.title,
+    "vendor":i.vendor, "price":i.price,"stock":i.stock, 
+    "sale_type":i.sale_type, "image_one":i.image_one,"category.name":i.category.name, 
+    "image_two":i.image_two, "image_three":i.image_three} for i in products.items], "current_page":products.page , "per_page":products.per_page ,"total":products.total}
+
+
+def getHireProducts(page_number):
+    products = Product.query.filter_by(sale_type="hire").order_by(Product.date_created.desc()).paginate(page_number, 12, False)
+    return {"products":[{"id": i.id, "description":i.description, "title":i.title,
+    "vendor":i.vendor, "price":i.price,"stock":i.stock, 
+    "sale_type":i.sale_type, "image_one":i.image_one,"category.name":i.category.name, 
+    "image_two":i.image_two, "image_three":i.image_three} for i in products.items], "current_page":products.page , "per_page":products.per_page ,"total":products.total}

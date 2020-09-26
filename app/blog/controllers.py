@@ -1,7 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+import secrets
 
-from app.blog.models import Blog, getBlogs, addBlog, delBlog, addComment, getComments
+from app import app, db, photos
+from app.blog.models import Blog, getBlogs, addBlog, delBlog, addComment, getComments, addBlogSeen
+from app.helper_functions import (token_required, admin_required, agronomist_required, error_return)
 
 blog = Blueprint('blog', __name__)
 
@@ -16,11 +19,23 @@ def index():
 def add_blog():
     try:
         current_user = get_jwt_identity()
-        title = request.json["title"]
-        content = request.json["content"]
+        blog_form = request.form
+        title = blog_form["title"]
+        content = blog_form["content"]
         uid = current_user["id"]
-  
-        addBlog(title, content, uid)
+        banner = request.files['banner']
+
+        if not banner.filename:
+            return jsonify(error_return(400, 'Prove banner please!')), 400
+
+        blog_banner = photos.save(banner, name =  secrets.token_hex(10) + '.')
+        print("file name "+banner.filename)    
+        print(current_user)
+        try:
+            addBlog(title, content, uid, blog_banner)
+        except:
+            print("Failed to add blog, try again later!")
+            return jsonify(error_return(400, 'Failed to add blog, try again later!')), 400
         return jsonify({"success": "true"})
     except Exception as e:
         print(e)
@@ -39,12 +54,13 @@ def delete_blog():
 
 
 @blog.route("/comment/add", methods=["POST", "GET"])
-# @jwt_required
+@jwt_required
 def add_blog_comment():
     try:
+        current_user = get_jwt_identity()
         blog_id = request.args.get('blog_id')
-        user_id = request.args.get('user_id')
         comment = request.json["comment"]
+        user_id = current_user["id"]
         addComment(comment, blog_id, user_id)
         return jsonify({"success": "comment added"}),200
     except Exception as e:
@@ -56,6 +72,7 @@ def add_blog_comment():
 def get_blog_comment():
     try:
          blog_id = request.args.get('blog_id')
+         addBlogSeen(blog_id)
          return jsonify(getComments(blog_id)), 200
     except Exception as e:
         return jsonify({"error": "Server error"}), 5000
