@@ -6,7 +6,7 @@ import secrets
 from app import app, db, photos
 from app.helper_functions import (token_required, admin_required, agronomist_required, error_return, success_return)
 from app.helper_variables import (ALLOWED_EXTENSIONS)
-from app.products.models import Category, Product, getProducts, getHireProducts, getProductsFiltered
+from app.products.models import Category, Product, getProducts, getHireProducts, getProductsFiltered, getCategory
 from app.products.schema import products_schema
 
 # initial product blueprint
@@ -114,4 +114,12 @@ def get_all_product():
         return jsonify(getProducts(page)), 200
     except Exception as e:
         print(e)
+        return jsonify({"error": "Server error"}), 5000
+
+
+@product.route('/category', methods=['GET', 'POST'])
+def get_all_category():
+    try:
+        return jsonify(getCategory()), 200
+    except Exception as e:
         return jsonify({"error": "Server error"}), 5000
