@@ -38,23 +38,22 @@ def getCategory():
 
 def getProductsFiltered(page_number, filter_object):
     print(filter_object)
-    products = Product.query.filter(and_(Product.sale_type == "sale", Product.category_name.like("%" + filter_object["title"] + "%"),Product.title.like("%" + filter_object["title"] + "%"))).order_by(Product.date_created.desc()).paginate(page_number, 12, False)
-    return {"products":[{"id": i.id, "description":i.description, "title":i.title,
-    "vendor":i.vendor, "price":i.price,"stock":i.stock, 
-    "sale_type":i.sale_type, "image_one":i.image_one,"category_name":i.category.name, 
-    "image_two":i.image_two, "image_three":i.image_three} for i in products.items], "current_page":products.page , "per_page":products.per_page ,"total":products.total}
+    # products = Product.query.filter(and_(Product.sale_type == "sale", Product.category_name.like("%" + filter_object["title"] + "%"),Product.title.like("%" + filter_object["title"] + "%"))).order_by(Product.date_created.desc()).paginate(page_number, 12, False)
+    products = Product.query.filter(Product.sale_type == "sale", Product.title.like("%" + filter_object["title"] + "%")).order_by(Product.date_created.desc()).paginate(page_number, 12, False)
+    return returnProducts(products)
 
 
 def getProducts(page_number):
     products = Product.query.filter_by(sale_type="sale").order_by(Product.date_created.desc()).paginate(page_number, 12, False)
-    return {"products":[{"id": i.id, "description":i.description, "title":i.title,
-    "vendor":i.vendor, "price":i.price,"stock":i.stock, 
-    "sale_type":i.sale_type, "image_one":i.image_one,"category_namename":i.category.name, 
-    "image_two":i.image_two, "image_three":i.image_three} for i in products.items], "current_page":products.page , "per_page":products.per_page ,"total":products.total}
+    return returnProducts(products)
 
 
 def getHireProducts(page_number):
     products = Product.query.filter_by(sale_type="hire").order_by(Product.date_created.desc()).paginate(page_number, 12, False)
+    return returnProducts(products)
+
+def returnProducts(products):
+    print("it does reach here for you to consume")
     return {"products":[{"id": i.id, "description":i.description, "title":i.title,
     "vendor":i.vendor, "price":i.price,"stock":i.stock, 
     "sale_type":i.sale_type, "image_one":i.image_one,"category_name":i.category.name, 

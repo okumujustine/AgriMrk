@@ -34,3 +34,19 @@ class CustomerOder(Base):
     def __repr__(self):
         return '<CustomerOder %r>' % self.invoice
 
+
+
+class CustomerHireOder(Base):
+    hire_number = db.Column(db.String(50), unique=True, nullable=False)
+    status = db.Column(db.String(50), default="pending", nullable=False)
+    address = db.Column(db.String(50), nullable=False)
+    phone = db.Column(db.BigInteger(),  nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
+    customer = db.relationship('User',backref=db.backref('user_hire_order', lazy=True))
+    product_id = db.Column(db.Integer(),  nullable=False)
+    product_name = db.Column(db.Integer(),  nullable=False)
+    days_number = db.Column(db.Integer(),  nullable=False)
+    return_date = db.Column(db.DateTime, nullable=False)
+    needed_date = db.Column(db.DateTime,  nullable=False)
+    given_date = db.Column(db.DateTime,  nullable=True)
+    hire_notes = db.Column(db.String(50), nullable=True)
