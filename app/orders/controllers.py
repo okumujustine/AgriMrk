@@ -53,7 +53,6 @@ def add_orders(current_user):
 def get_hire_orders_list():
     current_user = get_jwt_identity()
     customer_id = current_user["id"]
-    print(request.json)
     try:
         page = request.args.get('page', 1, type=int)
         if request.json is not None and bool(request.json["filterObject"]):
