@@ -53,7 +53,6 @@ def getHireProducts(page_number):
     return returnProducts(products)
 
 def returnProducts(products):
-    print("it does reach here for you to consume")
     return {"products":[{"id": i.id, "description":i.description, "title":i.title,
     "vendor":i.vendor, "price":i.price,"stock":i.stock, 
     "sale_type":i.sale_type, "image_one":i.image_one,"category_name":i.category.name, 

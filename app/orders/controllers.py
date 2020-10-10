@@ -5,7 +5,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import secrets
 from app import db
 
-from app.orders.models import CustomerOder, CustomerHireOder, getHireOrdersList
+from app.orders.models import CustomerOder, CustomerHireOder, getHireOrdersList, getHireOrdersListFiltered
 from app.orders.schema import orders_schema, hire_products_schema
 from app.helper_functions import token_required, success_return, error_return
 
@@ -48,14 +48,20 @@ def add_orders(current_user):
 
 
 # CustomerHireOder -> get hire orders
-@orders.route('/hirelist', methods=['GET'])
+@orders.route('/hirelist', methods=['POST','GET'])
 @jwt_required
 def get_hire_orders_list():
     current_user = get_jwt_identity()
+    customer_id = current_user["id"]
+    print(request.json)
     try:
         page = request.args.get('page', 1, type=int)
-        customer_id = current_user["id"]
+        if request.json is not None and bool(request.json["filterObject"]):
+            filter_object = request.json["filterObject"]
+            return jsonify(getHireOrdersListFiltered(page, customer_id, filter_object)), 200
+        
         return jsonify(getHireOrdersList(page, customer_id)), 200
+        
     except Exception as e:
         print(e)
         return jsonify({"error": "Server error"}), 5000

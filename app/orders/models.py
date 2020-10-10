@@ -56,7 +56,14 @@ class CustomerHireOder(Base):
 
 
 def getHireOrdersList(page_number, customer_id):
-    hire_requests = CustomerHireOder.query.filter_by(customer_id=customer_id).order_by(CustomerHireOder.date_created.desc()).paginate(page_number, 12, False)
+    print("without parameter")
+    hire_requests = CustomerHireOder.query.filter_by(customer_id=customer_id).order_by(CustomerHireOder.date_created.desc()).paginate(page_number, 2, False)
+    return returnHireOrders(hire_requests)
+
+
+def getHireOrdersListFiltered(page_number, customer_id, filter_object):
+    print("parameter fully available")
+    hire_requests = CustomerHireOder.query.filter(CustomerHireOder.customer_id==customer_id, CustomerHireOder.product_name.like("%" + filter_object["title"] + "%")).order_by(CustomerHireOder.date_created.desc()).paginate(page_number, 2, False)
     return returnHireOrders(hire_requests)
 
 def returnHireOrders(hire_requests):
