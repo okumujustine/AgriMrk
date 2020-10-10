@@ -44,9 +44,20 @@ class CustomerHireOder(Base):
     customer_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
     customer = db.relationship('User',backref=db.backref('user_hire_order', lazy=True))
     product_id = db.Column(db.Integer(),  nullable=False)
-    product_name = db.Column(db.Integer(),  nullable=False)
+    product_name = db.Column(db.String(),  nullable=False)
     days_number = db.Column(db.Integer(),  nullable=False)
     return_date = db.Column(db.DateTime, nullable=False)
     needed_date = db.Column(db.DateTime,  nullable=False)
     given_date = db.Column(db.DateTime,  nullable=True)
     hire_notes = db.Column(db.String(50), nullable=True)
+
+
+
+
+
+def getHireOrdersList(page_number, customer_id):
+    hire_requests = CustomerHireOder.query.filter_by(customer_id=customer_id).order_by(CustomerHireOder.date_created.desc()).paginate(page_number, 12, False)
+    return returnHireOrders(hire_requests)
+
+def returnHireOrders(hire_requests):
+    return {"hire_requests_products":[{ "id":i.id , 'date_created':i.date_created, 'date_modified':i.date_modified,'hire_number':i.hire_number, 'status':i.status, 'address':i.address, 'phone':i.phone, 'customer_id':i.customer_id, 'product_id':i.product_id, 'product_name':i.product_name, 'days_number':i.days_number, 'return_date':i.return_date, 'needed_date':i.needed_date, 'given_date':i.given_date, 'hire_notes':i.hire_notes,'customer_name':i.customer.name} for i in hire_requests.items], "current_page":hire_requests.page , "per_page":hire_requests.per_page ,"total":hire_requests.total}
