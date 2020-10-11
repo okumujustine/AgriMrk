@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import datetime
 import os
 import secrets
@@ -13,7 +14,7 @@ from app.products.schema import products_schema
 product = Blueprint('product', __name__)
 
 @product.route('/')
-@agronomist_required
+@jwt_required
 def get_all(current_user):
     return jsonify({"product":"products", "user": current_user})
 
@@ -23,7 +24,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @product.route('/addcategory', methods=['POST', 'GET'])
-@admin_required
+@jwt_required
 def add_category():
     category = request.json['category'] 
     if not category:
@@ -33,10 +34,13 @@ def add_category():
     db.session.add(new_category)
     db.session.commit()
 
+    print(new_category)
+
     return jsonify(success_return(201, {'name':category}))
 
 
 @product.route('/add', methods=['POST', 'GET'])
+@jwt_required
 def add_product():
     # get form data
     product_form = request.form
@@ -48,6 +52,7 @@ def add_product():
     category = product_form['category']
     stock = product_form['stock']
     sale_type = product_form['saleType']
+    category_name = product_form['categoryName']
 
     # handing files upload
     check_duplicate_imagename = []
@@ -76,14 +81,15 @@ def add_product():
             title = title,
             description = description,
             vendor = vendor,
-            price = price,
-            discount = discount,
+            price = int(price),
+            discount = int(discount),
             category_id = category,
-            stock = stock,
+            stock = int(stock),
             image_one = product_image_one,
             image_two = product_image_two,
             image_three = product_image_three,
-            sale_type = sale_type
+            sale_type = sale_type,
+            category_name = category_name
         )
         db.session.add(new_product)
         db.session.commit()
@@ -118,7 +124,9 @@ def get_all_product():
 
 
 @product.route('/category', methods=['GET', 'POST'])
+@jwt_required
 def get_all_category():
+    current_user = get_jwt_identity()
     try:
         return jsonify(getCategory()), 200
     except Exception as e:
