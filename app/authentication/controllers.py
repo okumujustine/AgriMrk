@@ -33,7 +33,8 @@ def signup():
     district = new_user['district']
     password = new_user['password']
     status = new_user['status']
-    role = new_user['role']
+    # role = new_user['role']
+    role="customer"
 
     if user_exist_by_contact(phone):
         return jsonify(error_return(400, 'user with phone already exists')), 400

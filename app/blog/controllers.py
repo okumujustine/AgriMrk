@@ -11,6 +11,13 @@ blog = Blueprint('blog', __name__)
 @blog.route('/')
 def index():
     page = request.args.get('page', 1, type=int)
+    title = request.args.get('qtitle')
+    
+    if not title:
+        print("no search query provided",title)
+        return jsonify(getBlogs(page)), 200
+
+    print("the search query is staedily avaialable",title)
     return jsonify(getBlogs(page)), 200
 
 
