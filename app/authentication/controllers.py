@@ -8,7 +8,7 @@ import json
 
 
 from app import db, app
-from app.authentication.models import User, Role, InvalidToken
+from app.authentication.models import (User, Role, InvalidToken, getAgronomists)
 from app.authentication.schema import user_schema
 from app.helper_functions import (
     error_return,
@@ -33,7 +33,7 @@ def signup():
     district = new_user['district']
     password = new_user['password']
     status = new_user['status']
-    # role = new_user['role']
+    # role = new_user['role'] # => dynamic user roles
     role="customer"
 
     if user_exist_by_contact(phone):
@@ -143,7 +143,6 @@ def access_logout():
 
 
 @authentication.route("/logout/refresh", methods=["POST"])
-# @jwt_required
 @jwt_refresh_token_required
 def refresh_logout():
     jti = get_raw_jwt()["jti"]
@@ -155,3 +154,8 @@ def refresh_logout():
     except Exception as e:
         print(e)
         return {"error": e}
+
+
+@authentication.route("/user/agronomist", methods=["POST", "GET"])
+def get_agronomists():
+    return jsonify(getAgronomists()), 200

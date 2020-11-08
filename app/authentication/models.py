@@ -53,14 +53,6 @@ class Role(Base):
 
 
 
-# functions
-def getUser(uid):
-    users = User.query.all()
-    user = list(filter(lambda x: x.id == uid, users))[0]
-    return {"id": user.id, "name": user.name, "email": user.email}
-
-
-
 class InvalidToken(Base):
     __tablename__ = "invalid_tokens"
     id = db.Column(db.Integer, primary_key=True)
@@ -80,3 +72,16 @@ class InvalidToken(Base):
 def check_if_blacklisted_token(decrypted):
     jti = decrypted["jti"]
     return InvalidToken.is_invalid(jti)
+
+
+
+# functions
+def getUser(uid):
+    users = User.query.all()
+    user = list(filter(lambda x: x.id == uid, users))[0]
+    return {"id": user.id, "name": user.name, "email": user.email}
+
+
+def getAgronomists():
+    agronomists = User.query.filter(User.roles.any(Role.role.in_(['agronomist'])))
+    return [{"id": agronomist.id, "name": agronomist.name, "phone": agronomist.phone} for agronomist in agronomists]

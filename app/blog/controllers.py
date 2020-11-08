@@ -14,10 +14,8 @@ def index():
     title = request.args.get('qtitle')
     
     if not title:
-        print("no search query provided",title)
         return jsonify(getBlogs(page)), 200
 
-    print("the search query is staedily avaialable",title)
     return jsonify(getBlogsFiltered(page, title)), 200
 
 
