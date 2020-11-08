@@ -13,7 +13,11 @@ class Blog(Base):
 
 
 def getBlogs(page):
-    blogs = Blog.query.order_by(Blog.date_created.asc()).paginate(page, 20, False)
+    blogs = Blog.query.order_by(Blog.date_created.desc()).paginate(page, 20, False)
+    return [{"id": i.id, "title": i.title, "content": i.content, "banner": i.banner, "date_created": i.date_created, "user": getUser(i.uid), "comment_count":getCommentsCount(i.id), "seen_count":getBlogsSeenCount(i.id)} for i in blogs.items]
+
+def getBlogsFiltered(page_number, title):
+    blogs = Blog.query.filter(Blog.title.like("%"+title.lower()+"%")).order_by(Blog.date_created.desc()).paginate(page_number, 20, False)
     return [{"id": i.id, "title": i.title, "content": i.content, "banner": i.banner, "date_created": i.date_created, "user": getUser(i.uid), "comment_count":getCommentsCount(i.id), "seen_count":getBlogsSeenCount(i.id)} for i in blogs.items]
 
 def getUserBlogs(uid):

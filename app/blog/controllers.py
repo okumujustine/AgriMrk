@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 import secrets
 
 from app import app, db, photos
-from app.blog.models import Blog, getBlogs, addBlog, delBlog, addComment, getComments, addBlogSeen
+from app.blog.models import (Blog, getBlogs, addBlog, delBlog, addComment, getComments, addBlogSeen, getBlogsFiltered)
 from app.helper_functions import (token_required, admin_required, agronomist_required, error_return)
 
 blog = Blueprint('blog', __name__)
@@ -18,7 +18,7 @@ def index():
         return jsonify(getBlogs(page)), 200
 
     print("the search query is staedily avaialable",title)
-    return jsonify(getBlogs(page)), 200
+    return jsonify(getBlogsFiltered(page, title)), 200
 
 
 @blog.route("/add", methods=["POST", "GET"])

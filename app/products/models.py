@@ -37,8 +37,6 @@ def getCategory():
     
 
 def getProductsFiltered(page_number, filter_object):
-    print(filter_object)
-    # products = Product.query.filter(and_(Product.sale_type == "sale", Product.category_name.like("%" + filter_object["title"] + "%"),Product.title.like("%" + filter_object["title"] + "%"))).order_by(Product.date_created.desc()).paginate(page_number, 12, False)
     products = Product.query.filter(Product.sale_type == "sale", Product.title.like("%" + filter_object["title"] + "%")).order_by(Product.date_created.desc()).paginate(page_number, 12, False)
     return returnProducts(products)
 
