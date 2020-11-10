@@ -34,8 +34,6 @@ def add_blog():
             return jsonify(error_return(400, 'Prove banner please!')), 400
 
         blog_banner = photos.save(banner, name =  secrets.token_hex(10) + '.')
-        print("file name "+banner.filename)    
-        print(current_user)
         try:
             addBlog(title, content, uid, blog_banner)
         except:
