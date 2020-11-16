@@ -158,4 +158,11 @@ def refresh_logout():
 
 @authentication.route("/user/agronomist", methods=["POST", "GET"])
 def get_agronomists():
-    return jsonify(getAgronomists()), 200
+    return jsonify(getAgronomists(False, None)), 200
+
+
+@authentication.route("/user/agronomist/auth", methods=["POST", "GET"])
+@jwt_required
+def get_agronomists_auth():
+    identity = get_jwt_identity()
+    return jsonify(getAgronomists(True, identity["phone"])), 200

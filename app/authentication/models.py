@@ -1,7 +1,9 @@
 
 from app import db, app
 from app.models import Base
+from app.consultation.models import ChatMessage
 from flask_jwt_extended import JWTManager
+from sqlalchemy import or_, and_
 
 jwt = JWTManager(app)
 
@@ -82,6 +84,13 @@ def getUser(uid):
     return {"id": user.id, "name": user.name, "email": user.email}
 
 
-def getAgronomists():
+def getUnreadMessageCount(agronomist_phone, phone_num):
+    chat_message_count = ChatMessage.query.filter(ChatMessage.read==0,and_(ChatMessage.sender_phone == agronomist_phone, ChatMessage.receiver_phone == phone_num)).count()
+    return chat_message_count
+
+def getAgronomists(loggedIn, phone_num):
     agronomists = User.query.filter(User.roles.any(Role.role.in_(['agronomist'])))
-    return [{"id": agronomist.id, "name": agronomist.name, "phone": agronomist.phone} for agronomist in agronomists]
+    if loggedIn:
+        return [{"id": agronomist.id, "name": agronomist.name, "phone": agronomist.phone, "unread_count":getUnreadMessageCount(agronomist.phone, phone_num)} for agronomist in agronomists]
+    else:
+        return [{"id": agronomist.id, "name": agronomist.name, "phone": agronomist.phone, "unread_count":0} for agronomist in agronomists]

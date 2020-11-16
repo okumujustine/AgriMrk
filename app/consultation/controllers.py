@@ -87,4 +87,4 @@ def save_chat_message(thread, sender_phone, receiver_phone, message):
 
 def get_chat_messages(thread):
     chat_message = ChatMessage.query.filter(ChatMessage.thread_id==thread.id).order_by(ChatMessage.date_created.asc()).paginate(1, 20, False)
-    return [{"id": chat.id, "message":chat.message , "reciever":chat.receiver_phone , "sender": chat.sender_phone} for chat in chat_message.items]
+    return [{"id": chat.id, "message":chat.message , "reciever":chat.receiver_phone , "sender": chat.sender_phone, "read": chat.read} for chat in chat_message.items]

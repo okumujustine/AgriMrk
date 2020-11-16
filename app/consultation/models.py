@@ -11,6 +11,7 @@ class ChatMessage(Base):
     sender_phone = db.Column(db.BigInteger(),  nullable=False)
     receiver_phone = db.Column(db.BigInteger(),  nullable=False)
     message = db.Column(db.String(256))
+    read = db.Column(db.Integer(), nullable=False, default=0)
 
 
 class ChatThread(Base):
