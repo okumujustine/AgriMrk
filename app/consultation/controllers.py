@@ -37,9 +37,9 @@ def recieve_username(payload):
         reciever_id = users[str(payload['reciever'])]
     except KeyError:
         return
-    reciever = payload['reciever']
+    reciever = int(payload['reciever'])
     message = payload['message']
-    sender = payload['sender']
+    sender = int(payload['sender'])
 
     chat_thread = get_chat_thread(sender, reciever)
 
@@ -71,7 +71,7 @@ def get_chat_thread(sender, reciever):
 
 
 def create_chat_thread(sender_phone, reciever_phone):
-    chat_thread = ChatThread(sender_phone=sender_phone, receiver_phone=sender_phone)
+    chat_thread = ChatThread(sender_phone=sender_phone, receiver_phone=reciever_phone)
     db.session.add(chat_thread)
     db.session.commit()
 
@@ -87,4 +87,6 @@ def save_chat_message(thread, sender_phone, receiver_phone, message):
 
 def get_chat_messages(thread):
     chat_message = ChatMessage.query.filter(ChatMessage.thread_id==thread.id).order_by(ChatMessage.date_created.asc()).paginate(1, 20, False)
+    print("---chat_message",chat_message.items)
+    print("---chat_message",thread.id)
     return [{"id": chat.id, "message":chat.message , "reciever":chat.receiver_phone , "sender": chat.sender_phone, "read": chat.read} for chat in chat_message.items]

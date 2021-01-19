@@ -34,7 +34,8 @@ def signup():
     password = new_user['password']
     status = new_user['status']
     # role = new_user['role'] # => dynamic user roles
-    role="customer"
+    # role="customer"
+    role="agronomist"
 
     if user_exist_by_contact(phone):
         return jsonify(error_return(400, 'user with phone already exists')), 400

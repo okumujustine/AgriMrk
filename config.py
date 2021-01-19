@@ -10,7 +10,7 @@ FLASK_ENV = 'development'
 
 if FLASK_ENV == 'development':
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/agrimrk'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost/agrimrk2'
 else:
     DEBUG = False
     SQLALCHEMY_DATABASE_URI = 'postgres://lbbfootqtsnkxa:a5e884b30556d3dd738a5fcfc6be698813a12761417ad0e02f93869fe5fc046c@ec2-35-173-94-156.compute-1.amazonaws.com:5432/d4l49r60802obs'
