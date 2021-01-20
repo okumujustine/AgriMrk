@@ -89,7 +89,7 @@ def getUnreadMessageCount(agronomist_phone, phone_num):
     return chat_message_count
 
 def getAgronomists(loggedIn, phone_num):
-    agronomists = User.query.filter(User.roles.any(Role.role.in_(['agronomist'])))
+    agronomists = User.query.filter(and_(User.roles.any(Role.role.in_(['agronomist'])), User.phone != phone_num))
     if loggedIn:
         return [{"id": agronomist.id, "name": agronomist.name, "phone": agronomist.phone, "unread_count":getUnreadMessageCount(agronomist.phone, phone_num)} for agronomist in agronomists]
     else:
